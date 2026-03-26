@@ -17,11 +17,11 @@ It simplifies data fetching by abstracting complex caching options into intuitiv
 ## Installation
 
 ```bash
-npm install f4n
+npm install @iubns/f4n
 # or
-yarn add f4n
+yarn add @iubns/f4n
 # or
-pnpm add f4n
+pnpm add @iubns/f4n
 ```
 
 ## Quick Start
@@ -31,7 +31,7 @@ pnpm add f4n
 Use `f4n.get`, `post`, `put`, `delete` just like you would with Axios, but it uses the native Fetch API under the hood.
 
 ```typescript
-import { f4n } from 'f4n';
+import { f4n } from '@iubns/f4n';
 
 interface User {
   id: number;

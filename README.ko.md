@@ -16,11 +16,11 @@
 ## 설치
 
 ```bash
-npm install f4n
+npm install @iubns/f4n
 # 또는
-yarn add f4n
+yarn add @iubns/f4n
 # 또는
-pnpm add f4n
+pnpm add @iubns/f4n
 ```
 
 ## 빠른 시작
@@ -30,7 +30,7 @@ pnpm add f4n
 Axios처럼 `f4n.get`, `post`, `put`, `delete`를 사용하세요. 하지만 내부적으로는 기본 Fetch API를 사용합니다.
 
 ```typescript
-import { f4n } from 'f4n';
+import { f4n } from '@iubns/f4n';
 
 interface User {
   id: number;
