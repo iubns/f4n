@@ -1,8 +1,8 @@
-# f4next
+# f4n
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md)
 
-**f4next** (Fetch For Next) is a lightweight, type-safe wrapper around `fetch` designed specifically for the **Next.js 13+ App Router**.
+**f4n** (Fetch For Next) is a lightweight, type-safe wrapper around `fetch` designed specifically for the **Next.js 13+ App Router**.
 
 It simplifies data fetching by abstracting complex caching options into intuitive strategies like `ssr`, `isr`, and `ssg`.
 
@@ -17,21 +17,21 @@ It simplifies data fetching by abstracting complex caching options into intuitiv
 ## Installation
 
 ```bash
-npm install f4next
+npm install f4n
 # or
-yarn add f4next
+yarn add f4n
 # or
-pnpm add f4next
+pnpm add f4n
 ```
 
 ## Quick Start
 
 ### 1. Basic Usage
 
-Use `f4next.get`, `post`, `put`, `delete` just like you would with Axios, but it uses the native Fetch API under the hood.
+Use `f4n.get`, `post`, `put`, `delete` just like you would with Axios, but it uses the native Fetch API under the hood.
 
 ```typescript
-import { f4n } from 'f4next';
+import { f4n } from 'f4n';
 
 interface User {
   id: number;
@@ -40,7 +40,7 @@ interface User {
 
 // In a Server Component
 export default async function Page() {
-  const user = await f4next.get<User>('https://api.example.com/me');
+  const user = await f4n.get<User>('https://api.example.com/me');
   return <div>Hello {user.name}</div>;
 }
 ```
@@ -53,9 +53,9 @@ F4n supports "Magic Arguments" for setting strategies. You can pass the strategy
 
 ```typescript
 // Requests are cached indefinitely
-const data = await f4next.get('/api/static');
+const data = await f4n.get('/api/static');
 // Explicitly
-const data = await f4next.get('/api/static', 'ssg');
+const data = await f4n.get('/api/static', 'ssg');
 ```
 
 #### Server-Side Rendering (Dynamic)
@@ -64,7 +64,7 @@ Pass `'ssr'` as the second argument.
 
 ```typescript
 // Always fetches fresh data (cache: 'no-store')
-const data = await f4next.get('/api/dynamic', 'ssr');
+const data = await f4n.get('/api/dynamic', 'ssr');
 ```
 
 #### Incremental Static Regeneration (ISR)
@@ -73,10 +73,10 @@ Pass the revalidation time (in seconds) directly.
 
 ```typescript
 // Cached for 60 seconds (default)
-const data = await f4next.get('/api/news', 'isr');
+const data = await f4n.get('/api/news', 'isr');
 
 // Cached for 5 minutes
-const data = await f4next.get('/api/news', 300);
+const data = await f4n.get('/api/news', 300);
 ```
 
 ### 3. POST Requests & Body
@@ -84,7 +84,7 @@ const data = await f4next.get('/api/news', 300);
 For methods with a body (`post`, `put`, `patch`), the shortcut is the 3rd argument. `f4n` automatically stringifies your body and sets `Content-Type: application/json`.
 
 ```typescript
-await f4next.post('/api/users', { name: 'John' }, 'ssr');
+await f4n.post('/api/users', { name: 'John' }, 'ssr');
 ```
 
 ### 4. Response Parsing (Chainable API)
@@ -93,17 +93,17 @@ By default, `f4n` attempts to parse the response as JSON when you `await` it. Ho
 
 ```typescript
 // Default (JSON)
-const user = await f4next.get<User>('/api/user');
+const user = await f4n.get<User>('/api/user');
 
 // Text
-const html = await f4next.get('/home').text();
+const html = await f4n.get('/home').text();
 
 // Blob or ArrayBuffer
-const image = await f4next.get('/logo.png').blob();
-const buffer = await f4next.get('/data.bin').arrayBuffer();
+const image = await f4n.get('/logo.png').blob();
+const buffer = await f4n.get('/data.bin').arrayBuffer();
 
 // Raw Response (for headers, status check, etc)
-const res = await f4next.get('/api/raw').res();
+const res = await f4n.get('/api/raw').res();
 console.log(res.headers.get('content-type'));
 ```
 
@@ -113,12 +113,12 @@ You can mix shortcuts with standard `fetch` options like headers.
 
 ```typescript
 // Shortcut + Options
-await f4next.get('/api/secure', 'ssr', {
+await f4n.get('/api/secure', 'ssr', {
   headers: { Authorization: 'Bearer ...' },
 });
 
 // Options only (Legacy style)
-await f4next.get('/api/legacy', { strategy: 'ssr' });
+await f4n.get('/api/legacy', { strategy: 'ssr' });
 ```
 
 ### 6. Error Handling
@@ -127,7 +127,7 @@ await f4next.get('/api/legacy', { strategy: 'ssr' });
 
 ```typescript
 try {
-  await f4next.get('/api/protected');
+  await f4n.get('/api/protected');
 } catch (error) {
   console.error('Fetch failed:', error.message);
 }
@@ -135,13 +135,13 @@ try {
 
 ## API Reference
 
-### `f4next.get<T>(url, options?)`
+### `f4n.get<T>(url, options?)`
 
-### `f4next.post<T>(url, body, options?)`
+### `f4n.post<T>(url, body, options?)`
 
-### `f4next.put<T>(url, body, options?)`
+### `f4n.put<T>(url, body, options?)`
 
-### `f4next.delete<T>(url, options?)`
+### `f4n.delete<T>(url, options?)`
 
 **Options (`F4nOptions`):**
 
