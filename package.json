@@ -1,6 +1,14 @@
 {
-  "name": "f4n",
+  "name": "f4nx",
   "version": "26.13.1",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "README.ko.md",
+    "README.zh.md",
+    "README.ja.md"
+  ],
   "description": "Lightweight fetch wrapper for Next.js 13+ App Router with auto-managed SSR/ISR/SSG strategies.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

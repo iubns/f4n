@@ -6,7 +6,7 @@ export interface NextFetchRequestConfig {
   tags?: string[];
 }
 
-export interface F4nOptions extends Omit<RequestInit, 'body'> {
+export interface f4nxOptions extends Omit<RequestInit, 'body'> {
   // Strategy can still be specified here, or via shortcut
   strategy?: Strategy;
   revalidate?: number;
@@ -18,13 +18,13 @@ export interface F4nOptions extends Omit<RequestInit, 'body'> {
   next?: NextFetchRequestConfig;
 }
 
-export interface F4nResponse<T = any> {
+export interface f4nxResponse<T = any> {
   data: T;
   response: Response;
   error?: Error;
 }
 
-export interface F4nPromise<T> extends Promise<T> {
+export interface f4nxPromise<T> extends Promise<T> {
   /**
    * Parse the response as text.
    */

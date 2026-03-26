@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { f4n, ExtendedRequestInit } from '../src/f4n';
+import { f4nx, ExtendedRequestInit } from '../src/f4nx';
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
 
-describe('f4n', () => {
+describe('f4nx', () => {
   beforeEach(() => {
     fetchMock.mockReset();
     fetchMock.mockResolvedValue({
@@ -23,7 +23,7 @@ describe('f4n', () => {
 
   describe('Strategies & Shortcuts', () => {
     it('should perform a simple GET request (SSG default)', async () => {
-      const result = await f4n.get('/api/test');
+      const result = await f4nx.get('/api/test');
       expect(fetchMock).toHaveBeenCalledWith(
         '/api/test',
         expect.objectContaining({
@@ -36,31 +36,31 @@ describe('f4n', () => {
     });
 
     it('should support "ssr" shortcut', async () => {
-      await f4n.get('/api/ssr', 'ssr');
+      await f4nx.get('/api/ssr', 'ssr');
       const callArgs = fetchMock.mock.calls[0][1] as ExtendedRequestInit;
       expect(callArgs.cache).toBe('no-store');
     });
 
     it('should support "ssg" shortcut', async () => {
-      await f4n.get('/api/ssg', 'ssg');
+      await f4nx.get('/api/ssg', 'ssg');
       const callArgs = fetchMock.mock.calls[0][1] as ExtendedRequestInit;
       expect(callArgs.cache).toBe('force-cache');
     });
 
     it('should support "isr" string shortcut (default 60s)', async () => {
-      await f4n.get('/api/isr', 'isr');
+      await f4nx.get('/api/isr', 'isr');
       const callArgs = fetchMock.mock.calls[0][1] as ExtendedRequestInit;
       expect(callArgs.next?.revalidate).toBe(60);
     });
 
     it('should support number shortcut for ISR', async () => {
-      await f4n.get('/api/isr-custom', 300);
+      await f4nx.get('/api/isr-custom', 300);
       const callArgs = fetchMock.mock.calls[0][1] as ExtendedRequestInit;
       expect(callArgs.next?.revalidate).toBe(300);
     });
 
     it('should support POST with shortcut', async () => {
-      await f4n.post('/api/post', { a: 1 }, 'ssr');
+      await f4nx.post('/api/post', { a: 1 }, 'ssr');
       const callArgs = fetchMock.mock.calls[0][1] as RequestInit;
       expect(callArgs.method).toBe('POST');
       expect(callArgs.cache).toBe('no-store');
@@ -68,7 +68,7 @@ describe('f4n', () => {
     });
 
     it('should support POST with shortcut and options', async () => {
-      await f4n.post('/api/post', { a: 1 }, 'ssr', {
+      await f4nx.post('/api/post', { a: 1 }, 'ssr', {
         headers: { 'X-Test': '1' },
       });
       const callArgs = fetchMock.mock.calls[0][1] as RequestInit;
@@ -83,22 +83,22 @@ describe('f4n', () => {
         ok: true,
         text: async () => 'hello world',
       });
-      const result = await f4n.get('/api/text').text();
+      const result = await f4nx.get('/api/text').text();
       expect(result).toBe('hello world');
     });
 
     it('should allow chaining .blob()', async () => {
-      const result = await f4n.get('/api/blob').blob();
+      const result = await f4nx.get('/api/blob').blob();
       expect(result).toBeInstanceOf(Blob);
     });
 
     it('should allow chaining .arrayBuffer()', async () => {
-      const result = await f4n.get('/api/buffer').arrayBuffer();
+      const result = await f4nx.get('/api/buffer').arrayBuffer();
       expect(result).toBeInstanceOf(ArrayBuffer);
     });
 
     it('should allow chaining .res() to get raw Response', async () => {
-      const result = await f4n.get('/api/raw').res();
+      const result = await f4nx.get('/api/raw').res();
       expect(result.ok).toBe(true);
       expect(result.status).toBe(200);
     });
@@ -109,7 +109,7 @@ describe('f4n', () => {
         status: 404, // status is number
         statusText: 'Not Found',
       });
-      await expect(f4n.get('/api/404')).rejects.toThrow(
+      await expect(f4nx.get('/api/404')).rejects.toThrow(
         'HTTP Error: 404 Not Found',
       );
     });
@@ -120,7 +120,7 @@ describe('f4n', () => {
         status: 500, // status is number, and vitest mock needs proper number
         statusText: 'Server Error',
       });
-      await expect(f4n.get('/api/500').text()).rejects.toThrow(
+      await expect(f4nx.get('/api/500').text()).rejects.toThrow(
         'HTTP Error: 500 Server Error',
       );
     });
@@ -131,7 +131,7 @@ describe('f4n', () => {
         status: 204, // status is number
         text: async () => '',
       });
-      const result = await f4n.get('/api/204');
+      const result = await f4nx.get('/api/204');
       expect(result).toEqual({});
     });
   });

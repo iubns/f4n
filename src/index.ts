@@ -1,3 +1,3 @@
 export * from './types';
-export { f4n, F4n } from './f4n';
-export { f4n as default } from './f4n';
+export { f4nx } from './f4nx';
+export { f4nx as default } from './f4nx';
