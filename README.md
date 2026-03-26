@@ -123,13 +123,20 @@ await f4n.get('/api/legacy', { strategy: 'ssr' });
 
 ### 6. Error Handling
 
-`f4n` throws an error automatically if `response.ok` is false.
+`f4n` throws `F4nError` automatically if `response.ok` is false. This custom error class includes the status code, status text, and the original response object.
 
 ```typescript
+import { F4nError } from '@iubns/f4n';
+
 try {
   await f4n.get('/api/protected');
 } catch (error) {
-  console.error('Fetch failed:', error.message);
+  if (error instanceof F4nError) {
+    console.error('Status:', error.status); // 401
+    // You can access the response body if needed
+    const errorBody = await error.response.json();
+    console.error('Message:', errorBody.message);
+  }
 }
 ```
 

@@ -3,6 +3,7 @@ import {
   ExtendedRequestInit,
   StrategyShortcut,
   f4nPromise,
+  F4nError,
 } from './types.js';
 
 class f4nRequest<T> implements f4nPromise<T> {
@@ -19,7 +20,12 @@ class f4nRequest<T> implements f4nPromise<T> {
   // --- Internal Helper ---
   private async _checkOk(res: Response): Promise<Response> {
     if (!res.ok) {
-      throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+      throw new F4nError(
+        `HTTP Error: ${res.status} ${res.statusText}`,
+        res.status,
+        res.statusText,
+        res,
+      );
     }
     return res;
   }

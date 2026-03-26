@@ -122,13 +122,20 @@ await f4n.get('/api/legacy', { strategy: 'ssr' });
 
 ### 6. 错误处理
 
-如果 `response.ok` 为 false，`f4n` 会自动抛出错误。
+如果 `response.ok` 为 false，`f4n` 会自动抛出 `F4nError`。此自定义错误类包括状态代码、状态文本和原始响应对象。
 
 ```typescript
+import { F4nError } from '@iubns/f4n';
+
 try {
   await f4n.get('/api/protected');
 } catch (error) {
-  console.error('Fetch failed:', error.message);
+  if (error instanceof F4nError) {
+    console.error('Status:', error.status); // 401
+    // 如果需要，您可以访问响应体
+    const errorBody = await error.response.json();
+    console.error('Message:', errorBody.message);
+  }
 }
 ```
 

@@ -6,6 +6,18 @@ export interface NextFetchRequestConfig {
   tags?: string[];
 }
 
+export class F4nError extends Error {
+  constructor(
+    public message: string,
+    public status: number,
+    public statusText: string,
+    public response: Response,
+  ) {
+    super(message);
+    this.name = 'F4nError';
+  }
+}
+
 export interface f4nOptions extends Omit<RequestInit, 'body'> {
   // Strategy can still be specified here, or via shortcut
   baseURL?: string;

@@ -122,13 +122,20 @@ await f4n.get('/api/legacy', { strategy: 'ssr' });
 
 ### 6. 에러 처리
 
-`f4n`은 `response.ok`가 false이면 자동으로 에러를 던집니다.
+`f4n`은 `response.ok`가 false이면 자동으로 `F4nError`를 던집니다. 이 커스텀 에러 클래스에는 상태 코드, 상태 텍스트, 그리고 원본 응답 객체가 포함되어 있습니다.
 
 ```typescript
+import { F4nError } from '@iubns/f4n';
+
 try {
   await f4n.get('/api/protected');
 } catch (error) {
-  console.error('Fetch failed:', error.message);
+  if (error instanceof F4nError) {
+    console.error('Status:', error.status); // 401
+    // 필요한 경우 응답 본문에 접근할 수 있습니다
+    const errorBody = await error.response.json();
+    console.error('Message:', errorBody.message);
+  }
 }
 ```
 

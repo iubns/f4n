@@ -122,13 +122,20 @@ await f4n.get('/api/legacy', { strategy: 'ssr' });
 
 ### 6. エラーハンドリング
 
-`response.ok` が false の場合、`f4n` は自動的にエラーをスローします。
+`response.ok` が false の場合、`f4n` は自動的に `F4nError` をスローします。このカスタムエラークラスには、ステータスコード、ステータステキスト、および元のレスポンスオブジェクトが含まれています。
 
 ```typescript
+import { F4nError } from '@iubns/f4n';
+
 try {
   await f4n.get('/api/protected');
 } catch (error) {
-  console.error('Fetch failed:', error.message);
+  if (error instanceof F4nError) {
+    console.error('Status:', error.status); // 401
+    // 必要に応じてレスポンスボディにアクセスできます
+    const errorBody = await error.response.json();
+    console.error('Message:', errorBody.message);
+  }
 }
 ```
 

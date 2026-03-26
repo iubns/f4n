@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { f4n, ExtendedRequestInit } from '../src/f4n';
+import { F4nError } from '../src/types';
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
@@ -103,26 +104,51 @@ describe('f4n', () => {
       expect(result.status).toBe(200);
     });
 
-    it('should throw on HTTP error (default json)', async () => {
+    it('should throw F4nError on HTTP error (default json)', async () => {
       fetchMock.mockResolvedValueOnce({
         ok: false,
-        status: 404, // status is number
+        status: 404,
         statusText: 'Not Found',
       });
-      await expect(f4n.get('/api/404')).rejects.toThrow(
-        'HTTP Error: 404 Not Found',
-      );
+      await expect(f4n.get('/api/404')).rejects.toThrow('HTTP Error: 404 Not Found');
+
+      // Verify custom error properties
+      try {
+        await f4n.get('/api/404-check');
+      } catch (err: any) {
+        expect(err.name).toBe('F4nError');
+        expect(err.status).toBe(404);
+        expect(err.statusText).toBe('Not Found');
+        expect(err.response).toBeDefined();
+      }
     });
 
-    it('should throw on HTTP error (chained method)', async () => {
+    it('should throw F4nError on HTTP error (chained method)', async () => {
       fetchMock.mockResolvedValueOnce({
         ok: false,
-        status: 500, // status is number, and vitest mock needs proper number
+        status: 500,
         statusText: 'Server Error',
       });
-      await expect(f4n.get('/api/500').text()).rejects.toThrow(
-        'HTTP Error: 500 Server Error',
-      );
+      await expect(f4n.get('/api/500').text()).rejects.toThrow('HTTP Error: 500 Server Error');
+    });
+
+    it('should expose response object in F4nError', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+        json: async () => ({ message: 'Validation failed' }),
+      });
+
+      try {
+        await f4n.post('/api/users', { name: '' });
+      } catch (err: any) {
+        expect(err).toBeInstanceOf(F4nError);
+        expect(err.status).toBe(400);
+        // Verify we can access the response body
+        const errorBody = await err.response.json();
+        expect(errorBody).toEqual({ message: 'Validation failed' });
+      }
     });
 
     it('should handle 204 No Content gracefully (default json)', async () => {
