@@ -1,11 +1,11 @@
 import {
-  f4nxOptions,
+  f4nextOptions,
   ExtendedRequestInit,
   StrategyShortcut,
-  f4nxPromise,
+  f4nextPromise,
 } from './types.js';
 
-class f4nxRequest<T> implements f4nxPromise<T> {
+class f4nextRequest<T> implements f4nextPromise<T> {
   private _url: string;
   private _config: RequestInit;
   private _promiseResolver: Promise<Response>;
@@ -59,7 +59,7 @@ class f4nxRequest<T> implements f4nxPromise<T> {
   }
 
   public get [Symbol.toStringTag]() {
-    return 'f4nxPromise';
+    return 'f4nextPromise';
   }
 
   // --- Fluent Parsing Methods ---
@@ -89,17 +89,17 @@ class f4nxRequest<T> implements f4nxPromise<T> {
   }
 }
 
-class F4nx {
-  private defaultOptions: f4nxOptions;
+class f4next {
+  private defaultOptions: f4nextOptions;
 
-  constructor(defaults: f4nxOptions = {}) {
+  constructor(defaults: f4nextOptions = {}) {
     this.defaultOptions = defaults;
   }
 
   private mergeArgs(
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxOptions {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextOptions {
     if (typeof arg1 === 'string' || typeof arg1 === 'number') {
       const options = arg2 || {};
       if (typeof arg1 === 'number') {
@@ -111,7 +111,7 @@ class F4nx {
   }
 
   private applyStrategy(
-    options: f4nxOptions & { body?: any },
+    options: f4nextOptions & { body?: any },
   ): ExtendedRequestInit {
     // Default caching strategy:
     // - For GET: 'ssg' (force-cache) to align with Next.js defaults.
@@ -163,9 +163,9 @@ class F4nx {
     url: string,
     method: string,
     body?: unknown,
-    options: f4nxOptions = {},
-  ): f4nxPromise<T> {
-    const mergedOptions: f4nxOptions & { body?: any } = {
+    options: f4nextOptions = {},
+  ): f4nextPromise<T> {
+    const mergedOptions: f4nextOptions & { body?: any } = {
       ...this.defaultOptions, // Global defaults
       ...options, // Per-request overrides
       method,
@@ -184,24 +184,27 @@ class F4nx {
 
     const finalConfig = this.applyStrategy(mergedOptions);
 
-    // Return custom f4nxPromise for chaining
-    return new f4nxRequest<T>(url, finalConfig);
+    // Return custom f4nextPromise for chaining
+    return new f4nextRequest<T>(url, finalConfig);
   }
 
   // --- Public API ---
 
   // Overloads for GET (no body)
-  public get<T = unknown>(url: string, options?: f4nxOptions): f4nxPromise<T>;
+  public get<T = unknown>(
+    url: string,
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public get<T = unknown>(
     url: string,
     strategy: StrategyShortcut,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public get<T = unknown>(
     url: string,
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxPromise<T> {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextPromise<T> {
     const options = this.mergeArgs(arg1, arg2);
     return this.request<T>(url, 'GET', undefined, options);
   }
@@ -210,20 +213,20 @@ class F4nx {
   public post<T = unknown>(
     url: string,
     body: unknown,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public post<T = unknown>(
     url: string,
     body: unknown,
     strategy: StrategyShortcut,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public post<T = unknown>(
     url: string,
     body: unknown,
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxPromise<T> {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextPromise<T> {
     const options = this.mergeArgs(arg1, arg2);
     return this.request<T>(url, 'POST', body, options);
   }
@@ -232,20 +235,20 @@ class F4nx {
   public put<T = unknown>(
     url: string,
     body: unknown,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public put<T = unknown>(
     url: string,
     body: unknown,
     strategy: StrategyShortcut,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public put<T = unknown>(
     url: string,
     body: unknown,
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxPromise<T> {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextPromise<T> {
     const options = this.mergeArgs(arg1, arg2);
     return this.request<T>(url, 'PUT', body, options);
   }
@@ -253,18 +256,18 @@ class F4nx {
   // Overloads for DELETE
   public delete<T = unknown>(
     url: string,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public delete<T = unknown>(
     url: string,
     strategy: StrategyShortcut,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public delete<T = unknown>(
     url: string,
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxPromise<T> {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextPromise<T> {
     const options = this.mergeArgs(arg1, arg2);
     return this.request<T>(url, 'DELETE', undefined, options);
   }
@@ -273,27 +276,27 @@ class F4nx {
   public patch<T = unknown>(
     url: string,
     body: unknown,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public patch<T = unknown>(
     url: string,
     body: unknown,
     strategy: StrategyShortcut,
-    options?: f4nxOptions,
-  ): f4nxPromise<T>;
+    options?: f4nextOptions,
+  ): f4nextPromise<T>;
   public patch<T = unknown>(
     url: string,
     body: unknown,
-    arg1?: StrategyShortcut | f4nxOptions,
-    arg2?: f4nxOptions,
-  ): f4nxPromise<T> {
+    arg1?: StrategyShortcut | f4nextOptions,
+    arg2?: f4nextOptions,
+  ): f4nextPromise<T> {
     const options = this.mergeArgs(arg1, arg2);
     return this.request<T>(url, 'PATCH', body, options);
   }
 
-  public create(defaults: f4nxOptions): F4nx {
-    return new F4nx(defaults);
+  public create(defaults: f4nextOptions): f4next {
+    return new f4next(defaults);
   }
 }
 
-export const f4nx = new F4nx();
+export const f4next = new f4next();

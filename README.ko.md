@@ -1,8 +1,8 @@
-# f4nx
+# f4next
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md)
 
-**f4nx** (Fetch For Next)는 **Next.js 13+ App Router**를 위해 특별히 설계된 경량화되고 타입 안전한 `fetch` 래퍼입니다.
+**f4next** (Fetch For Next)는 **Next.js 13+ App Router**를 위해 특별히 설계된 경량화되고 타입 안전한 `fetch` 래퍼입니다.
 복잡한 캐싱 옵션을 `ssr`, `isr`, `ssg`와 같은 직관적인 전략으로 추상화하여 데이터 가져오기를 단순화합니다.
 
 ## 특징
@@ -16,21 +16,21 @@
 ## 설치
 
 ```bash
-npm install f4nx
+npm install f4next
 # 또는
-yarn add f4nx
+yarn add f4next
 # 또는
-pnpm add f4nx
+pnpm add f4next
 ```
 
 ## 빠른 시작
 
 ### 1. 기본 사용법
 
-Axios처럼 `f4nx.get`, `post`, `put`, `delete`를 사용하세요. 하지만 내부적으로는 기본 Fetch API를 사용합니다.
+Axios처럼 `f4next.get`, `post`, `put`, `delete`를 사용하세요. 하지만 내부적으로는 기본 Fetch API를 사용합니다.
 
 ```typescript
-import { f4n } from 'f4nx';
+import { f4n } from 'f4next';
 
 interface User {
   id: number;
@@ -39,22 +39,22 @@ interface User {
 
 // 서버 컴포넌트 내부
 export default async function Page() {
-  const user = await f4nx.get<User>('https://api.example.com/me');
+  const user = await f4next.get<User>('https://api.example.com/me');
   return <div>Hello {user.name}</div>;
 }
 ```
 
 ### 2. 캐싱 전략 (단축키)
 
-f4nx은 전략 설정을 위한 "매직 인자"를 지원합니다. 문자열이나 숫자로 전략을 직접 전달할 수 있습니다.
+f4next은 전략 설정을 위한 "매직 인자"를 지원합니다. 문자열이나 숫자로 전략을 직접 전달할 수 있습니다.
 
 #### 정적 사이트 생성 (기본값)
 
 ```typescript
 // 요청이 무기한 캐시됩니다
-const data = await f4nx.get('/api/static');
+const data = await f4next.get('/api/static');
 // 명시적으로 지정
-const data = await f4nx.get('/api/static', 'ssg');
+const data = await f4next.get('/api/static', 'ssg');
 ```
 
 #### 서버 사이드 렌더링 (동적)
@@ -63,7 +63,7 @@ const data = await f4nx.get('/api/static', 'ssg');
 
 ```typescript
 // 항상 최신 데이터를 가져옵니다 (cache: 'no-store')
-const data = await f4nx.get('/api/dynamic', 'ssr');
+const data = await f4next.get('/api/dynamic', 'ssr');
 ```
 
 #### 증분 정적 재생성 (ISR)
@@ -72,37 +72,37 @@ const data = await f4nx.get('/api/dynamic', 'ssr');
 
 ```typescript
 // 60초 동안 캐시됨 (기본값)
-const data = await f4nx.get('/api/news', 'isr');
+const data = await f4next.get('/api/news', 'isr');
 
 // 5분 동안 캐시됨
-const data = await f4nx.get('/api/news', 300);
+const data = await f4next.get('/api/news', 300);
 ```
 
 ### 3. POST 요청 및 본문
 
-본문이 있는 메서드(`post`, `put`, `patch`)의 경우, 단축키는 3번째 인자입니다. `f4nx`은 자동으로 본문을 문자열화하고 `Content-Type: application/json`을 설정합니다.
+본문이 있는 메서드(`post`, `put`, `patch`)의 경우, 단축키는 3번째 인자입니다. `f4next`은 자동으로 본문을 문자열화하고 `Content-Type: application/json`을 설정합니다.
 
 ```typescript
-await f4nx.post('/api/users', { name: 'John' }, 'ssr');
+await f4next.post('/api/users', { name: 'John' }, 'ssr');
 ```
 
 ### 4. 응답 파싱 (체이닝 API)
 
-기본적으로 `f4nx`은 `await`할 때 응답을 JSON으로 파싱 하려고 시도합니다. 그러나 메서드를 체이닝하여 응답 처리 방식을 변경할 수 있습니다.
+기본적으로 `f4next`은 `await`할 때 응답을 JSON으로 파싱 하려고 시도합니다. 그러나 메서드를 체이닝하여 응답 처리 방식을 변경할 수 있습니다.
 
 ```typescript
 // 기본 (JSON)
-const user = await f4nx.get<User>('/api/user');
+const user = await f4next.get<User>('/api/user');
 
 // 텍스트 (Text)
-const html = await f4nx.get('/home').text();
+const html = await f4next.get('/home').text();
 
 // Blob 또는 ArrayBuffer
-const image = await f4nx.get('/logo.png').blob();
-const buffer = await f4nx.get('/data.bin').arrayBuffer();
+const image = await f4next.get('/logo.png').blob();
+const buffer = await f4next.get('/data.bin').arrayBuffer();
 
 // 원본 응답 (헤더, 상태 확인 등)
-const res = await f4nx.get('/api/raw').res();
+const res = await f4next.get('/api/raw').res();
 console.log(res.headers.get('content-type'));
 ```
 
@@ -112,12 +112,12 @@ console.log(res.headers.get('content-type'));
 
 ```typescript
 // 단축키 + 옵션
-await f4nx.get('/api/secure', 'ssr', {
+await f4next.get('/api/secure', 'ssr', {
   headers: { Authorization: 'Bearer ...' },
 });
 
 // 옵션만 사용 (레거시 스타일)
-await f4nx.get('/api/legacy', { strategy: 'ssr' });
+await f4next.get('/api/legacy', { strategy: 'ssr' });
 ```
 
 ### 6. 에러 처리
@@ -126,7 +126,7 @@ await f4nx.get('/api/legacy', { strategy: 'ssr' });
 
 ```typescript
 try {
-  await f4nx.get('/api/protected');
+  await f4next.get('/api/protected');
 } catch (error) {
   console.error('Fetch failed:', error.message);
 }
@@ -134,13 +134,13 @@ try {
 
 ## API 참조
 
-### `f4nx.get<T>(url, options?)`
+### `f4next.get<T>(url, options?)`
 
-### `f4nx.post<T>(url, body, options?)`
+### `f4next.post<T>(url, body, options?)`
 
-### `f4nx.put<T>(url, body, options?)`
+### `f4next.put<T>(url, body, options?)`
 
-### `f4nx.delete<T>(url, options?)`
+### `f4next.delete<T>(url, options?)`
 
 **옵션 (`F4nOptions`):**
 
