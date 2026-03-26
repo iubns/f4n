@@ -1,0 +1,39 @@
+{
+  "name": "f4n",
+  "version": "26.13.1",
+  "description": "Lightweight fetch wrapper for Next.js 13+ App Router with auto-managed SSR/ISR/SSG strategies.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "nextjs",
+    "fetch",
+    "wrapper",
+    "app-router",
+    "ssr",
+    "isr",
+    "ssg",
+    "http-client"
+  ],
+  "author": "iubns",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
