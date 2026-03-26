@@ -1,6 +1,6 @@
 {
   "name": "@iubns/f4n",
-  "version": "26.13.8",
+  "version": "26.13.9",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iubns/f4n.git"
@@ -26,7 +26,8 @@
     "dev": "tsup --watch",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "nextjs",
