@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { f4n, ExtendedRequestInit } from '../src/f4n';
-import { F4nError } from '../src/types';
+import { f4n, ExtendedRequestInit, F4nError } from '../src/f4n';
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;

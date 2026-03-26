@@ -3,8 +3,19 @@ import {
   ExtendedRequestInit,
   StrategyShortcut,
   f4nPromise,
-  F4nError,
 } from './types.js';
+
+export class F4nError extends Error {
+  constructor(
+    public message: string,
+    public status: number,
+    public statusText: string,
+    public response: Response,
+  ) {
+    super(message);
+    this.name = 'F4nError';
+  }
+}
 
 class f4nRequest<T> implements f4nPromise<T> {
   private _url: string;
