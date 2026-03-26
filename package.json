@@ -1,6 +1,14 @@
 {
   "name": "@iubns/f4n",
   "version": "26.13.2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iubns/f4n.git"
+  },
+  "homepage": "https://github.com/iubns/f4n#readme",
+  "bugs": {
+    "url": "https://github.com/iubns/f4n/issues"
+  },
   "files": [
     "dist",
     "src",

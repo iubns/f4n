@@ -1,6 +1,6 @@
 # f4n
 
-[English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md)
+[English](https://github.com/iubns/f4n/blob/main/README.md) | [한국어](https://github.com/iubns/f4n/blob/main/README.ko.md) | [中文](https://github.com/iubns/f4n/blob/main/README.zh.md) | [日本語](https://github.com/iubns/f4n/blob/main/README.ja.md)
 
 **f4n** (Fetch For Next) は、**Next.js 13+ App Router** 向けに特別に設計された、軽量で型安全な `fetch` ラッパーです。
 複雑なキャッシュオプションを `ssr`、`isr`、`ssg` のような直感的な戦略に抽象化することで、データ取得を簡素化します。

@@ -1,6 +1,6 @@
 # f4n
 
-[English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md)
+[English](https://github.com/iubns/f4n/blob/main/README.md) | [한국어](https://github.com/iubns/f4n/blob/main/README.ko.md) | [中文](https://github.com/iubns/f4n/blob/main/README.zh.md) | [日本語](https://github.com/iubns/f4n/blob/main/README.ja.md)
 
 **f4n** (Fetch For Next) 是专为 **Next.js 13+ App Router** 设计的轻量级、类型安全的 `fetch` 包装器。
 它通过将复杂的缓存选项抽象为直观的策略（如 `ssr`、`isr` 和 `ssg`）来简化数据获取。
