@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { f4n, ExtendedRequestInit, F4nError } from '../src/f4n';
+import { f4n, ExtendedRequestInit } from '../src/f4n';
+import { F4nError } from '../src/errors';
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
@@ -109,7 +110,9 @@ describe('f4n', () => {
         status: 404,
         statusText: 'Not Found',
       });
-      await expect(f4n.get('/api/404')).rejects.toThrow('HTTP Error: 404 Not Found');
+      await expect(f4n.get('/api/404')).rejects.toThrow(
+        'HTTP Error: 404 Not Found',
+      );
 
       // Verify custom error properties
       try {
@@ -128,7 +131,9 @@ describe('f4n', () => {
         status: 500,
         statusText: 'Server Error',
       });
-      await expect(f4n.get('/api/500').text()).rejects.toThrow('HTTP Error: 500 Server Error');
+      await expect(f4n.get('/api/500').text()).rejects.toThrow(
+        'HTTP Error: 500 Server Error',
+      );
     });
 
     it('should expose response object in F4nError', async () => {
