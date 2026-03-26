@@ -99,13 +99,67 @@ const user = await f4n.get<User>('/api/user');
 const html = await f4n.get('/home').text();
 
 // Blob or ArrayBuffer
+const blob = await f4n.get('/image.png').blob();
+```
+
+### 5. Interceptors
+
+You can intercept requests or responses before they are handled by `then` or `catch`. This is useful for adding authentication tokens, logging, or handling global errors like 401 Unauthorized.
+
+#### Request Interceptor
+
+```typescript
+f4n.interceptors.request.use((config) => {
+  // Add auth token to every request
+  config.headers = new Headers(config.headers);
+  config.headers.set('Authorization', 'Bearer my-token');
+  console.log(`[Request] ${config.method} ${config.url}`);
+  return config;
+});
+```
+
+#### Response Interceptor
+
+```typescript
+f4n.interceptors.response.use(
+  (response) => {
+    // Any status code within the range of 2xx triggers this function
+    return response;
+  },
+  async (error) => {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    const originalRequest = error.config;
+
+    // Example: Refresh token on 401
+    if (error.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // 1. Refresh token
+        // const { accessToken } = await refreshToken();
+        // 2. Update header
+        // originalRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+        // 3. Retry original request
+        // You would need to re-execute the request here.
+        // Currently, manual retry logic needs to be implemented.
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+```
+
+// Blob or ArrayBuffer
 const image = await f4n.get('/logo.png').blob();
 const buffer = await f4n.get('/data.bin').arrayBuffer();
 
 // Raw Response (for headers, status check, etc)
 const res = await f4n.get('/api/raw').res();
 console.log(res.headers.get('content-type'));
-```
+
+````
 
 ### 5. Advanced Options
 
@@ -119,11 +173,13 @@ await f4n.get('/api/secure', 'ssr', {
 
 // Options only (Legacy style)
 await f4n.get('/api/legacy', { strategy: 'ssr' });
-```
+````
 
 ### 6. Error Handling
 
 `f4n` throws `F4nError` automatically if `response.ok` is false. This custom error class includes the status code, status text, and the original response object.
+
+#### Try-Catch (Async/Await)
 
 ```typescript
 import { F4nError } from '@iubns/f4n';
@@ -140,6 +196,26 @@ try {
 }
 ```
 
+#### Promise Catch Method
+
+You can also use the `.catch` method directly.
+
+```typescript
+f4n
+  .get('/api/user')
+  .then((data) => console.log('Success:', data))
+  .catch((error) => {
+    // 1. API Error (4xx, 5xx)
+    if (error instanceof F4nError) {
+      console.error('API Error:', error.status);
+    }
+    // 2. Network/Unknown Error
+    else {
+      console.error('Network Error:', error);
+    }
+  });
+```
+
 ### 7. Global Configuration (axios-style)
 
 You can create a pre-configured instance with `baseURL`, default headers, and strategies.
@@ -151,7 +227,7 @@ import { f4n } from '@iubns/f4n';
 export const api = f4n.create({
   baseURL: 'https://api.example.com/v1',
   headers: {
-    'Authorization': 'Bearer my-token',
+    Authorization: 'Bearer my-token',
     'Content-Type': 'application/json',
   },
   // Default strategy for all requests from this client

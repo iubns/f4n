@@ -98,13 +98,66 @@ const user = await f4n.get<User>('/api/user');
 const html = await f4n.get('/home').text();
 
 // Blob 또는 ArrayBuffer
+const blob = await f4n.get('/image.png').blob();
+```
+
+### 5. 인터셉터 (Interceptors)
+
+`then`이나 `catch`에 도달하기 전에 요청이나 응답을 가로챌 수 있습니다. 인증 토큰 추가, 로깅 또는 401 Unauthorized와 같은 전역 에러 처리에 유용합니다.
+
+#### 요청 인터셉터 (Request Interceptor)
+
+```typescript
+f4n.interceptors.request.use((config) => {
+  // 모든 요청에 인증 토큰 추가
+  config.headers = new Headers(config.headers);
+  config.headers.set('Authorization', 'Bearer my-token');
+  console.log(`[Request] ${config.method} ${config.url}`);
+  return config;
+});
+```
+
+#### 응답 인터셉터 (Response Interceptor)
+
+```typescript
+f4n.interceptors.response.use(
+  (response) => {
+    // 2xx 범위의 상태 코드는 이 함수를 트리거합니다.
+    return response;
+  },
+  async (error) => {
+    // 2xx 범위를 벗어난 상태 코드는 이 함수를 트리거합니다.
+    const originalRequest = error.config;
+
+    // 예제: 401 에러 발생 시 토큰 갱신
+    if (error.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // 1. 토큰 갱신 로직 실행
+        // const { accessToken } = await refreshToken();
+        // 2. 헤더 업데이트
+        // originalRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+        // 3. 원래 요청 재시도
+        // 여기서 원래 요청을 다시 실행하는 로직이 필요합니다.
+        // 현재는 수동 재시도 로직을 구현해야 합니다.
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+```
+
 const image = await f4n.get('/logo.png').blob();
 const buffer = await f4n.get('/data.bin').arrayBuffer();
 
 // 원본 응답 (헤더, 상태 확인 등)
 const res = await f4n.get('/api/raw').res();
 console.log(res.headers.get('content-type'));
-```
+
+````
 
 ### 5. 고급 옵션
 
@@ -118,11 +171,13 @@ await f4n.get('/api/secure', 'ssr', {
 
 // 옵션만 사용 (레거시 스타일)
 await f4n.get('/api/legacy', { strategy: 'ssr' });
-```
+````
 
 ### 6. 에러 처리
 
 `f4n`은 `response.ok`가 false이면 자동으로 `F4nError`를 던집니다. 이 커스텀 에러 클래스에는 상태 코드, 상태 텍스트, 그리고 원본 응답 객체가 포함되어 있습니다.
+
+#### Try-Catch (Async/Await)
 
 ```typescript
 import { F4nError } from '@iubns/f4n';
@@ -137,6 +192,26 @@ try {
     console.error('Message:', errorBody.message);
   }
 }
+```
+
+#### Promise Catch 메서드
+
+`.catch` 메서드를 직접 사용하여 에러를 처리할 수도 있습니다.
+
+```typescript
+f4n
+  .get('/api/user')
+  .then((data) => console.log('Success:', data))
+  .catch((error) => {
+    // 1. HTTP API 에러 (4xx, 5xx)
+    if (error instanceof F4nError) {
+      console.error('API Error:', error.status);
+    }
+    // 2. 네트워크 에러 (오프라인, DNS 오류 등)
+    else {
+      console.error('Network Error:', error);
+    }
+  });
 ```
 
 ### 7. 전역 설정 (f4n.create)

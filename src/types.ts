@@ -50,3 +50,27 @@ export interface f4nPromise<T> extends Promise<T> {
 export interface ExtendedRequestInit extends RequestInit {
   next?: NextFetchRequestConfig;
 }
+
+export interface F4nConfig extends ExtendedRequestInit {
+  url: string;
+  method: string;
+}
+
+export interface InterceptorManager<V> {
+  use(
+    onFulfilled?: ((value: V) => V | Promise<V>) | null,
+    onRejected?: ((error: any) => any) | null,
+  ): number;
+  eject(id: number): void;
+  forEach(
+    fn: (handler: {
+      fulfilled?: (value: V) => V | Promise<V>;
+      rejected?: (error: any) => any;
+    }) => void,
+  ): void;
+}
+
+export interface F4nInterceptors {
+  request: InterceptorManager<F4nConfig>;
+  response: InterceptorManager<Response>;
+}

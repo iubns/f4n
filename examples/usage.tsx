@@ -99,6 +99,53 @@ export async function createPostAction(formData: FormData) {
 // -------------------------------------------------------------
 // 6. Update Action (PUT)
 // -------------------------------------------------------------
+export async function updatePost(id: string, formData: FormData) {
+  'use server';
+  const title = formData.get('title');
+  await f4n.put(`https://api.example.com/posts/${id}`, { title });
+}
+
+// -------------------------------------------------------------
+// 7. Interceptors (Advanced)
+// -------------------------------------------------------------
+// You can set up interceptors globally, e.g., in a separate configuration file
+// or at the top of your application entry point.
+
+// Request Interceptor
+f4n.interceptors.request.use((config) => {
+  // Add auth token to every request
+  config.headers = new Headers(config.headers);
+  config.headers.set('Authorization', 'Bearer my-token');
+  console.log(`[Request] ${config.method} ${config.url}`);
+  return config;
+});
+
+// Response Interceptor
+f4n.interceptors.response.use(
+  (response) => {
+    // Modify response or just log
+    console.log(`[Response] ${response.status}`);
+    return response;
+  },
+  async (error) => {
+    // Handle global errors (e.g., 401 Unauthorized)
+    const originalRequest = error.config;
+    if (error.status === 401 && originalRequest && !originalRequest._retry) {
+      console.log('Token expired, refreshing...');
+      // Mark as retried to avoid infinite loops
+      originalRequest._retry = true;
+
+      // ... Perform token refresh logic here ...
+      // await f4n.post('/refresh-token', {});
+
+      // Retry original request
+      // return f4n.request(originalRequest.url, originalRequest.method, originalRequest.body, originalRequest);
+    }
+    return Promise.reject(error);
+  },
+);
+
+// -------------------------------------------------------------
 export async function updatePostAction(id: string, formData: FormData) {
   'use server';
 

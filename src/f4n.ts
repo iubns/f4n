@@ -3,18 +3,20 @@ import {
   ExtendedRequestInit,
   StrategyShortcut,
   f4nPromise,
+  F4nConfig,
+  InterceptorManager,
+  F4nInterceptors,
 } from './types.js';
 import { F4nError } from './errors.js';
+import { F4nInterceptorManager } from './interceptor.js';
 
 class f4nRequest<T> implements f4nPromise<T> {
-  private _url: string;
-  private _config: RequestInit;
   private _promiseResolver: Promise<Response>;
+  private _config: F4nConfig;
 
-  constructor(url: string, config: RequestInit) {
-    this._url = url;
+  constructor(promiseResolver: Promise<Response>, config: F4nConfig) {
+    this._promiseResolver = promiseResolver;
     this._config = config;
-    this._promiseResolver = fetch(url, config);
   }
 
   // --- Internal Helper ---
@@ -25,6 +27,7 @@ class f4nRequest<T> implements f4nPromise<T> {
         res.status,
         res.statusText,
         res,
+        this._config,
       );
     }
     return res;
@@ -36,21 +39,36 @@ class f4nRequest<T> implements f4nPromise<T> {
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
     // Default parsing: JSON/Fallback Text
-    const jsonPromise = this._promiseResolver.then(async (res) => {
-      await this._checkOk(res);
-      if (res.status === 204) return {} as T;
+    const jsonPromise = this._promiseResolver
+      .catch((err) => {
+        // Handle network errors (e.g. DNS failure, offline)
+        // These are typically TypeError thrown by fetch
+        if (err instanceof F4nError) {
+          throw err;
+        }
+        throw new F4nError(
+          err instanceof Error ? err.message : 'Network Error',
+          0,
+          'NETWORK_ERROR',
+          undefined,
+          this._config,
+        );
+      })
+      .then(async (res) => {
+        await this._checkOk(res);
+        if (res.status === 204) return {} as T;
 
-      const text = await res.text();
-      // If empty body, return empty object
-      if (!text) return {} as T;
+        const text = await res.text();
+        // If empty body, return empty object
+        if (!text) return {} as T;
 
-      try {
-        return JSON.parse(text) as T;
-      } catch {
-        // Fallback to text if JSON parsing fails
-        return text as unknown as T;
-      }
-    });
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          // Fallback to text if JSON parsing fails
+          return text as unknown as T;
+        }
+      });
     return jsonPromise.then(onfulfilled, onrejected);
   }
 
@@ -97,9 +115,14 @@ class f4nRequest<T> implements f4nPromise<T> {
 
 class F4n {
   private defaultOptions: f4nOptions;
+  public interceptors: F4nInterceptors;
 
   constructor(defaults: f4nOptions = {}) {
     this.defaultOptions = defaults;
+    this.interceptors = {
+      request: new F4nInterceptorManager(),
+      response: new F4nInterceptorManager(),
+    };
   }
 
   private mergeArgs(
@@ -207,8 +230,29 @@ class F4n {
     // 4. Transform for fetch (strip custom props like baseURL, strategy, etc)
     const finalConfig = this.applyStrategy(mergedOptions);
 
+    const config: F4nConfig = { ...finalConfig, url: finalUrl, method };
+
+    const chain: any[] = [
+      (conf: F4nConfig) => fetch(conf.url, conf),
+      undefined,
+    ];
+
+    this.interceptors.request.forEach((interceptor) => {
+      chain.unshift(interceptor.fulfilled, interceptor.rejected);
+    });
+
+    this.interceptors.response.forEach((interceptor) => {
+      chain.push(interceptor.fulfilled, interceptor.rejected);
+    });
+
+    let promise: Promise<any> = Promise.resolve(config);
+
+    while (chain.length) {
+      promise = promise.then(chain.shift(), chain.shift());
+    }
+
     // Return custom f4nPromise for chaining
-    return new f4nRequest<T>(finalUrl, finalConfig);
+    return new f4nRequest<T>(promise as Promise<Response>, config);
   }
 
   // --- Public API ---

@@ -98,6 +98,61 @@ const user = await f4n.get<User>('/api/user');
 const html = await f4n.get('/home').text();
 
 // Blob 或 ArrayBuffer
+const blob = await f4n.get('/image.png').blob();
+```
+
+### 5. 拦截器 (Interceptors)
+
+您可以在请求或响应由 `then` 处理之前拦截它们。这对于添加身份验证令牌、记录日志或处理全局错误（如 401 Unauthorized）非常有用。
+
+#### 请求拦截器 (Request Interceptor)
+
+```typescript
+f4n.interceptors.request.use((config) => {
+  // 为每个请求添加身份验证令牌
+  config.headers = new Headers(config.headers);
+  config.headers.set('Authorization', 'Bearer my-token');
+  console.log(`[Request] ${config.method} ${config.url}`);
+  return config;
+});
+```
+
+#### 响应拦截器 (Response Interceptor)
+
+```typescript
+f4n.interceptors.response.use(
+  (response) => {
+    // 2xx 范围内的任何状态代码都会触发此函数
+    return response;
+  },
+  async (error) => {
+    // 2xx 范围以外的任何状态代码都会触发此函数
+    const originalRequest = error.config;
+    
+    // 示例：刷新令牌 401
+    // 如果返回 401 并且尚未重试
+    if (error.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // 1. 刷新令牌
+        // const { accessToken } = await refreshToken();
+        
+        // 2. 更新头部
+        // originalRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+        
+        // 3. 重试原始请求
+        // 您需要在这里重新执行请求。
+        // 目前，需要手动实现重试逻辑。
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
 const image = await f4n.get('/logo.png').blob();
 const buffer = await f4n.get('/data.bin').arrayBuffer();
 

@@ -98,13 +98,66 @@ const user = await f4n.get<User>('/api/user');
 const html = await f4n.get('/home').text();
 
 // Blob または ArrayBuffer
+const blob = await f4n.get('/image.png').blob();
+```
+
+### 5. インターセプター (Interceptors)
+
+`then` または `catch` で処理される前に、リクエストまたはレスポンスをインターセプトすることができます。これは、認証トークンの追加、ログ記録、または 401 Unauthorized のようなグローバルエラーの処理に役立ちます。
+
+#### リクエストインターセプター (Request Interceptor)
+
+```typescript
+f4n.interceptors.request.use((config) => {
+  // すべてのリクエストに認証トークンを追加
+  config.headers = new Headers(config.headers);
+  config.headers.set('Authorization', 'Bearer my-token');
+  console.log(`[Request] ${config.method} ${config.url}`);
+  return config;
+});
+```
+
+#### レスポンスインターセプター (Response Interceptor)
+
+```typescript
+f4n.interceptors.response.use(
+  (response) => {
+    // 2xx の範囲にあるステータスコードはこの関数をトリガーします
+    return response;
+  },
+  async (error) => {
+    // 2xx の範囲外のステータスコードはこの関数をトリガーします
+    const originalRequest = error.config;
+
+    // 例: 401 エラー発生時のトークン更新
+    if (error.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // 1. トークンを更新
+        // const { accessToken } = await refreshToken();
+        // 2. ヘッダーを更新
+        // originalRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+        // 3. 元のリクエストを再試行
+        // ここでは、元のリクエストを再実行するロジックが必要です。
+        // 現在、手動での再試行ロジックを実装する必要があります。
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+```
+
 const image = await f4n.get('/logo.png').blob();
 const buffer = await f4n.get('/data.bin').arrayBuffer();
 
 // 生のレスポンス (ヘッダー、ステータス確認など)
 const res = await f4n.get('/api/raw').res();
 console.log(res.headers.get('content-type'));
-```
+
+````
 
 ### 5. 高度なオプション
 
@@ -118,7 +171,7 @@ await f4n.get('/api/secure', 'ssr', {
 
 // オプションのみ (レガシースタイル)
 await f4n.get('/api/legacy', { strategy: 'ssr' });
-```
+````
 
 ### 6. エラーハンドリング
 
@@ -150,7 +203,7 @@ import { f4n } from '@iubns/f4n';
 export const api = f4n.create({
   baseURL: 'https://api.example.com/v1',
   headers: {
-    'Authorization': 'Bearer my-token',
+    Authorization: 'Bearer my-token',
     'Content-Type': 'application/json',
   },
   // このクライアントからの全リクエストのデフォルト戦略
