@@ -1,5 +1,5 @@
 {
-  "name": "@iubns/f4next",
+  "name": "f4next",
   "version": "26.13.1",
   "files": [
     "dist",
