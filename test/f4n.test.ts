@@ -135,4 +135,82 @@ describe('f4n', () => {
       expect(result).toEqual({});
     });
   });
+
+  describe('Configuration (create)', () => {
+    it('should prepend baseURL to requests', async () => {
+      const api = f4n.create({
+        baseURL: 'https://api.example.com/v1',
+      });
+
+      await api.get('/users');
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://api.example.com/v1/users',
+        expect.objectContaining({
+          method: 'GET',
+        }),
+      );
+    });
+
+    it('should ignore baseURL if a full URL is provided', async () => {
+      const api = f4n.create({
+        baseURL: 'https://api.example.com/v1',
+      });
+
+      await api.get('https://other.com/api/users');
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://other.com/api/users',
+        expect.anything(),
+      );
+    });
+
+    it('should merge default headers with request headers', async () => {
+      const api = f4n.create({
+        headers: {
+          Authorization: 'Bearer token',
+          'X-Global': 'true',
+        },
+      });
+
+      await api.get('/test', {
+        headers: {
+          'X-Request': 'true',
+        },
+      });
+
+      const calledHeaders = (fetchMock.mock.calls[0][1] as RequestInit)
+        .headers as Headers;
+
+      expect(calledHeaders.get('authorization')).toBe('Bearer token');
+      expect(calledHeaders.get('x-global')).toBe('true');
+      expect(calledHeaders.get('x-request')).toBe('true');
+    });
+
+    it('should override default headers with request headers', async () => {
+      const api = f4n.create({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      await api.post(
+        '/test',
+        { foo: 'bar' },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
+
+      const calledHeaders = (fetchMock.mock.calls[0][1] as RequestInit)
+        .headers as Headers;
+
+      // Request header should win
+      expect(calledHeaders.get('content-type')).toBe(
+        'application/x-www-form-urlencoded',
+      );
+    });
+  });
 });

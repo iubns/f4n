@@ -133,6 +133,33 @@ try {
 }
 ```
 
+### 7. Global Configuration (axios-style)
+
+You can create a pre-configured instance with `baseURL`, default headers, and strategies.
+
+```typescript
+// api/client.ts
+import { f4n } from '@iubns/f4n';
+
+export const api = f4n.create({
+  baseURL: 'https://api.example.com/v1',
+  headers: {
+    'Authorization': 'Bearer my-token',
+    'Content-Type': 'application/json',
+  },
+  // Default strategy for all requests from this client
+  strategy: 'isr',
+  revalidate: 60,
+});
+
+// usage.tsx
+import { api } from '@/api/client';
+
+// Normalized to: GET https://api.example.com/v1/users
+// Headers merged: Authorization + Content-Type included
+const users = await api.get('/users');
+```
+
 ## API Reference
 
 ### `f4n.get<T>(url, options?)`

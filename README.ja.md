@@ -132,6 +132,33 @@ try {
 }
 ```
 
+### 7. グローバル設定 (f4n.create)
+
+`baseURL`、デフォルトヘッダー、共通戦略を事前に設定したインスタンスを作成できます（`axios.create`と同様）。
+
+```typescript
+// lib/api.ts
+import { f4n } from '@iubns/f4n';
+
+export const api = f4n.create({
+  baseURL: 'https://api.example.com/v1',
+  headers: {
+    'Authorization': 'Bearer my-token',
+    'Content-Type': 'application/json',
+  },
+  // このクライアントからの全リクエストのデフォルト戦略
+  strategy: 'isr',
+  revalidate: 60,
+});
+
+// app/page.tsx
+import { api } from '@/lib/api';
+
+// 自動的に変換: GET https://api.example.com/v1/users
+// ヘッダーのマージ: Authorization + Content-Type が含まれます
+const users = await api.get('/users');
+```
+
 ## API リファレンス
 
 ### `f4n.get<T>(url, options?)`

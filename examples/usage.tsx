@@ -146,3 +146,35 @@ export async function customResponseParsing() {
   console.log('Status:', response.status);
   console.log('Content-Type:', response.headers.get('content-type'));
 }
+
+// -------------------------------------------------------------
+// 9. Advanced Configuration with f4n.create()
+// -------------------------------------------------------------
+// Create a reusable instance with baseURL and default headers
+const api = f4n.create({
+  baseURL: 'https://api.example.com/v1',
+  headers: {
+    Authorization: 'Bearer my-secret-token',
+    'Content-Type': 'application/json',
+  },
+  // Set default strategy for this instance
+  strategy: 'isr',
+  revalidate: 60,
+});
+
+export async function ProfilePage() {
+  // Uses baseURL: https://api.example.com/v1/me
+  // Merged headers: Authorization + Content-Type
+  const user = await api.get<any>('/me');
+
+  // Override specific headers (merged deeply)
+  const posts = await api.get<Post[]>('/posts', 'ssr', {
+    headers: { 'X-Custom-Time': 'now' },
+  });
+
+  return (
+    <div>
+      <h1>User: {user.name}</h1>
+    </div>
+  );
+}

@@ -8,6 +8,7 @@ export interface NextFetchRequestConfig {
 
 export interface f4nOptions extends Omit<RequestInit, 'body'> {
   // Strategy can still be specified here, or via shortcut
+  baseURL?: string;
   strategy?: Strategy;
   revalidate?: number;
   /**

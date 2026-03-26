@@ -132,6 +132,33 @@ try {
 }
 ```
 
+### 7. 전역 설정 (f4n.create)
+
+`baseURL`이나 기본 헤더, 공통 전략을 미리 설정한 인스턴스를 생성할 수 있습니다 (`axios.create`와 유사).
+
+```typescript
+// lib/api.ts
+import { f4n } from '@iubns/f4n';
+
+export const api = f4n.create({
+  baseURL: 'https://api.example.com/v1',
+  headers: {
+    Authorization: 'Bearer my-token',
+    'Content-Type': 'application/json',
+  },
+  // 이 인스턴스의 기본 전략 설정
+  strategy: 'isr',
+  revalidate: 60,
+});
+
+// app/page.tsx
+import { api } from '@/lib/api';
+
+// 자동으로 변환됨: GET https://api.example.com/v1/users
+// 헤더 병합됨: Authorization + Content-Type 포함
+const users = await api.get('/users');
+```
+
 ## API 참조
 
 ### `f4n.get<T>(url, options?)`

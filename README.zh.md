@@ -132,6 +132,33 @@ try {
 }
 ```
 
+### 7. 全局配置 (f4n.create)
+
+您可以创建一个预配置了 `baseURL`、默认 headers 和策略的实例（类似于 `axios.create`）。
+
+```typescript
+// lib/api.ts
+import { f4n } from '@iubns/f4n';
+
+export const api = f4n.create({
+  baseURL: 'https://api.example.com/v1',
+  headers: {
+    'Authorization': 'Bearer my-token',
+    'Content-Type': 'application/json',
+  },
+  // 该客户端所有请求的默认策略
+  strategy: 'isr',
+  revalidate: 60,
+});
+
+// app/page.tsx
+import { api } from '@/lib/api';
+
+// 自动转换为: GET https://api.example.com/v1/users
+// Headers 合并: 包含 Authorization + Content-Type
+const users = await api.get('/users');
+```
+
 ## API 参考
 
 ### `f4n.get<T>(url, options?)`

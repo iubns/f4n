@@ -165,13 +165,30 @@ class F4n {
     body?: unknown,
     options: f4nOptions = {},
   ): f4nPromise<T> {
+    // 1. Handle baseURL logic
+    let finalUrl = url;
+    if (this.defaultOptions.baseURL && !/^https?:\/\//i.test(url)) {
+      const baseURL = this.defaultOptions.baseURL.replace(/\/$/, '');
+      const path = url.startsWith('/') ? url.slice(1) : url;
+      finalUrl = `${baseURL}/${path}`;
+    }
+
+    // 2. Merge headers deeply
+    const headers = new Headers(this.defaultOptions.headers);
+    if (options.headers) {
+      const requestHeaders = new Headers(options.headers);
+      requestHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
+
+    // 3. Combine options
     const mergedOptions: f4nOptions & { body?: any } = {
       ...this.defaultOptions, // Global defaults
       ...options, // Per-request overrides
       method,
+      headers, // Use merged headers
     };
-
-    const headers = new Headers(mergedOptions.headers);
 
     // Auto-serialize JSON body
     if (body) {
@@ -180,12 +197,12 @@ class F4n {
         headers.set('Content-Type', 'application/json');
       }
     }
-    mergedOptions.headers = headers;
 
+    // 4. Transform for fetch (strip custom props like baseURL, strategy, etc)
     const finalConfig = this.applyStrategy(mergedOptions);
 
     // Return custom f4nPromise for chaining
-    return new f4nRequest<T>(url, finalConfig);
+    return new f4nRequest<T>(finalUrl, finalConfig);
   }
 
   // --- Public API ---
